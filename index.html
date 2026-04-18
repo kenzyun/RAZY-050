@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#cc0000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Tesla BT Control</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --red: #cc0000;
+    --red-dark: #990000;
+    --bg: #111;
+    --card: #1e1e1e;
+    --border: #333;
+    --text: #eee;
+    --muted: #888;
+    --green: #22c55e;
+    --yellow: #eab308;
+  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  /* screens */
+  .screen { display: none; flex-direction: column; min-height: 100vh; }
+  .screen.active { display: flex; }
+
+  /* header */
+  .header { background: var(--red); padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
+  .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+  .header .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; opacity: 0.5; flex-shrink: 0; }
+  .header .status-dot.connected { background: var(--green); opacity: 1; }
+  .back-btn { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 0 8px 0 0; line-height: 1; }
+
+  /* connect screen */
+  .connect-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; gap: 24px; }
+  .logo { font-size: 64px; }
+  .connect-title { font-size: 22px; font-weight: 700; }
+  .connect-sub { color: var(--muted); text-align: center; font-size: 14px; line-height: 1.6; }
+  .btn-main { background: var(--red); color: #fff; border: none; border-radius: 14px; padding: 16px 40px; font-size: 17px; font-weight: 600; cursor: pointer; width: 100%; max-width: 280px; transition: background 0.15s; }
+  .btn-main:hover { background: var(--red-dark); }
+  .btn-main:disabled { background: #444; color: #666; cursor: not-allowed; }
+  .log-area { width: 100%; max-width: 400px; background: var(--card); border-radius: 10px; padding: 12px; font-size: 12px; color: var(--muted); font-family: monospace; max-height: 120px; overflow-y: auto; line-height: 1.8; }
+
+  /* login screen */
+  .login-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; gap: 20px; }
+  .login-title { font-size: 20px; font-weight: 700; }
+  .input-group { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 8px; }
+  .input-group label { font-size: 13px; color: var(--muted); }
+  .input-group input { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-size: 16px; color: var(--text); width: 100%; outline: none; }
+  .input-group input:focus { border-color: var(--red); }
+
+  /* control screen */
+  .control-body { flex: 1; overflow-y: auto; padding: 16px; }
+  .section-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px; padding-left: 4px; }
+  .section-title:first-child { margin-top: 0; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .btn-ctrl { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 10px; font-size: 14px; color: var(--text); cursor: pointer; text-align: center; line-height: 1.3; transition: background 0.1s, transform 0.1s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .btn-ctrl .icon { font-size: 22px; }
+  .btn-ctrl:active { background: #2a2a2a; transform: scale(0.96); }
+  .btn-ctrl.danger { border-color: #7f1d1d; }
+  .btn-ctrl.danger:active { background: #3b0000; }
+
+  /* toast */
+  .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: #222; color: var(--text); border-radius: 24px; padding: 10px 22px; font-size: 14px; pointer-events: none; opacity: 0; transition: opacity 0.3s; z-index: 999; white-space: nowrap; max-width: 90vw; text-overflow: ellipsis; overflow: hidden; }
+  .toast.show { opacity: 1; }
+
+  /* status bar in header */
+  .header-right { margin-left: auto; font-size: 12px; color: rgba(255,255,255,0.7); }
+</style>
+</head>
+<body>
+
+<!-- ======== SCREEN: Connect ======== -->
+<div id="screen-connect" class="screen active">
+  <div class="header">
+    <div class="status-dot" id="dot-connect"></div>
+    <h1>Tesla BT Control</h1>
+  </div>
+  <div class="connect-center">
+    <div class="logo">🚗</div>
+    <div class="connect-title">連接 KLOVEF 設備</div>
+    <div class="connect-sub">確保手機藍牙已開啟，<br>並靠近設備（KLOVEF-System）</div>
+    <button class="btn-main" id="btn-connect" onclick="connectBLE()">掃描並連接</button>
+    <div class="log-area" id="log-box">等待連接...<br></div>
+  </div>
+</div>
+
+<!-- ======== SCREEN: Login ======== -->
+<div id="screen-login" class="screen">
+  <div class="header">
+    <button class="back-btn" onclick="showScreen('connect')">‹</button>
+    <div class="status-dot connected"></div>
+    <h1>輸入密碼</h1>
+  </div>
+  <div class="login-center">
+    <div class="login-title">🔐 登入設備</div>
+    <div class="input-group">
+      <label>設備密碼</label>
+      <input type="password" id="pwd-input" placeholder="輸入密碼" maxlength="16"
+             onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-main" id="btn-login" onclick="doLogin()">登入</button>
+  </div>
+</div>
+
+<!-- ======== SCREEN: Control ======== -->
+<div id="screen-control" class="screen">
+  <div class="header">
+    <div class="status-dot connected" id="dot-ctrl"></div>
+    <h1>Tesla 控制</h1>
+    <div class="header-right" id="device-name-label"></div>
+  </div>
+  <div class="control-body">
+
+    <div class="section-title">🔒 車鎖</div>
+    <div class="grid">
+      <button class="btn-ctrl" onclick="manual(0x01)"><span class="icon">🔒</span>上鎖</button>
+      <button class="btn-ctrl" onclick="manual(0x02)"><span class="icon">🔓</span>開鎖</button>
+    </div>
+
+    <div class="section-title">🚪 車門</div>
+    <div class="grid grid-3">
+      <button class="btn-ctrl" onclick="manual(0x03)"><span class="icon">🚪</span>右前門</button>
+      <button class="btn-ctrl" onclick="manual(0x05)"><span class="icon">🚪</span>左後門</button>
+      <button class="btn-ctrl" onclick="manual(0x04)"><span class="icon">🚪</span>右後門</button>
+    </div>
+
+    <div class="section-title">📦 箱蓋</div>
+    <div class="grid">
+      <button class="btn-ctrl" onclick="manual(0x06)"><span class="icon">📦</span>開後備箱</button>
+      <button class="btn-ctrl" onclick="manual(0x07)"><span class="icon">✅</span>關後備箱</button>
+      <button class="btn-ctrl" onclick="manual(0x08)"><span class="icon">📦</span>開前備箱</button>
+      <button class="btn-ctrl" onclick="manual(0x09)"><span class="icon">✅</span>關前備箱</button>
+      <button class="btn-ctrl" onclick="manual(0x0A)"><span class="icon">🗃️</span>打開手套箱</button>
+      <button class="btn-ctrl" onclick="manual(0x0B)"><span class="icon">🔌</span>開充電蓋板</button>
+      <button class="btn-ctrl" onclick="manual(0x0C)"><span class="icon">✅</span>關充電蓋板</button>
+    </div>
+
+    <div class="section-title">💡 燈光</div>
+    <div class="grid">
+      <button class="btn-ctrl" onclick="manual(0x11)"><span class="icon">💡</span>遠光爆閃</button>
+      <button class="btn-ctrl" onclick="manual(0x12)"><span class="icon">🔦</span>前霧爆閃</button>
+      <button class="btn-ctrl" onclick="manual(0x13)"><span class="icon">🔦</span>前霧領航</button>
+      <button class="btn-ctrl" onclick="manual(0x14)"><span class="icon">🔦</span>後霧爆閃</button>
+      <button class="btn-ctrl" onclick="manual(0x15)"><span class="icon">🔦</span>後霧領航</button>
+    </div>
+
+    <div class="section-title">📢 喇叭</div>
+    <div class="grid grid-3">
+      <button class="btn-ctrl" onclick="manual(0x16)"><span class="icon">📢</span>脈衝</button>
+      <button class="btn-ctrl" onclick="manual(0x17)"><span class="icon">🔔</span>低聲×1</button>
+      <button class="btn-ctrl" onclick="manual(0x18)"><span class="icon">🔔</span>低聲×2</button>
+      <button class="btn-ctrl" onclick="manual(0x19)"><span class="icon">🔔</span>低聲×3</button>
+    </div>
+
+    <div class="section-title">💺 副駕座椅</div>
+    <div class="grid">
+      <button class="btn-ctrl" onclick="manual(0x0D)"><span class="icon">⬆️</span>前移</button>
+      <button class="btn-ctrl" onclick="manual(0x0E)"><span class="icon">⬇️</span>後退</button>
+      <button class="btn-ctrl" onclick="manual(0x0F)"><span class="icon">↩️</span>靠背前移</button>
+      <button class="btn-ctrl" onclick="manual(0x10)"><span class="icon">↪️</span>靠背後移</button>
+      <button class="btn-ctrl" onclick="manual(0x1A)"><span class="icon">1️⃣</span>位置1</button>
+      <button class="btn-ctrl" onclick="manual(0x1B)"><span class="icon">2️⃣</span>位置2</button>
+      <button class="btn-ctrl" onclick="manual(0x1C)"><span class="icon">3️⃣</span>位置3</button>
+      <button class="btn-ctrl" onclick="manual(0x1D)"><span class="icon">💆</span>按摩</button>
+    </div>
+
+    <div class="section-title">💺 主駕座椅</div>
+    <div class="grid">
+      <button class="btn-ctrl" onclick="manual(0x1F)"><span class="icon">💆</span>按摩</button>
+    </div>
+
+    <div class="section-title">🔋 電池</div>
+    <div class="grid">
+      <button class="btn-ctrl" onclick="manual(0x20)"><span class="icon">🔥</span>開電池預熱</button>
+      <button class="btn-ctrl" onclick="manual(0x21)"><span class="icon">❄️</span>關電池預熱</button>
+    </div>
+
+    <div class="section-title">⚙️ 設備</div>
+    <div class="grid">
+      <button class="btn-ctrl danger" onclick="sendGetDeviceInfo()"><span class="icon">ℹ️</span>設備資訊</button>
+      <button class="btn-ctrl danger" onclick="disconnectBLE()"><span class="icon">🔌</span>斷開連接</button>
+    </div>
+
+    <div style="height: 32px;"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================
+//   BLE Protocol (ported from ble-protocol.js)
+// =============================================
+
+function crc16(buffer) {
+  let crc = 0;
+  for (const b of buffer) {
+    for (let k = 0x80; k !== 0; k = Math.floor(k / 2)) {
+      if ((crc & 0x8000) !== 0) crc = (crc * 2) ^ 0x8005;
+      else crc *= 2;
+      if ((b & k) !== 0) crc ^= 0x8005;
+      if (crc > 0x10000) crc -= 0x10000;
+    }
+  }
+  return crc & 0xFFFF;
+}
+
+function decimalToBytes(num, len) {
+  if (num === 0) return new Array(len).fill(0);
+  const bytes = [];
+  while (num > 0) { bytes.push(num & 0xFF); num >>= 8; }
+  bytes.reverse();
+  while (bytes.length < len) bytes.unshift(0);
+  return bytes;
+}
+
+function decimalToBitArray(decimal, targetLength) {
+  const bits = decimal.toString(2).split('').map(Number);
+  while (bits.length < targetLength) bits.unshift(0);
+  return bits;
+}
+
+function bitsToBytes(bits) {
+  const bytes = [];
+  for (let i = 0; i < bits.length; i += 8) {
+    let b = 0;
+    for (let j = 0; j < 8; j++) { b <<= 1; if (bits[i + j]) b |= 1; }
+    bytes.push(b);
+  }
+  return bytes;
+}
+
+function buildFrame(command, data) {
+  const frameLen = 1 + data.length + 2;
+  const frameLenBytes = decimalToBytes(frameLen, 2);
+  const frameLenInv = bitsToBytes(decimalToBitArray(frameLen, 16).map(b => b ^ 1));
+  const frame = [...frameLenBytes, ...frameLenInv, command, ...data];
+  const crcBytes = decimalToBytes(crc16(frame), 2);
+  return [...frame, ...crcBytes];
+}
+
+function stringToBytes(str) {
+  return str.split('').map(c => c.charCodeAt(0));
+}
+
+// =============================================
+//   BLE State
+// =============================================
+
+const BLE_SERVICE_UUID = '0000fee7-0000-1000-8000-00805f9b34fb';
+const CMD = { LOGIN: 0x01, GET_DEVICE_INFO: 0x41, GET_INIT_INFO: 0x44, FUNC_CTRL: 0x45, CUSTOM_FUNC: 0x46, MANUAL_CTRL: 0x47, PARAM_SETTING: 0x48 };
+const RSP = { LOGIN_RESULT: 0x11, DEVICE_INFO: 0x81, FUNC_STATUS: 0x84, TESLA_SETTINGS: 0x88 };
+
+let bleDevice = null;
+let writeChar = null;
+let receiveBuffer = [];
+
+// =============================================
+//   Connection
+// =============================================
+
+async function connectBLE() {
+  if (!navigator.bluetooth) {
+    showToast('此瀏覽器不支援 Web Bluetooth，請用 Chrome');
+    return;
+  }
+  const btn = document.getElementById('btn-connect');
+  btn.disabled = true;
+  btn.textContent = '搜尋中...';
+  addLog('開始掃描...');
+
+  try {
+    bleDevice = await navigator.bluetooth.requestDevice({
+      filters: [{ name: 'KLOVEF-System' }],
+      optionalServices: [BLE_SERVICE_UUID],
+    });
+    addLog(`找到設備: ${bleDevice.name}`);
+    bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+    addLog('連接 GATT...');
+    const server = await bleDevice.gatt.connect();
+    addLog('取得 Service...');
+    const service = await server.getPrimaryService(BLE_SERVICE_UUID);
+    addLog('取得 Characteristics...');
+    const chars = await service.getCharacteristics();
+    addLog(`共 ${chars.length} 個特徵`);
+
+    writeChar = null;
+    let notifyChar = null;
+    for (const c of chars) {
+      const p = c.properties;
+      addLog(`  UUID: ${c.uuid.substring(0,8)}... write=${p.write||p.writeWithoutResponse} notify=${p.notify||p.indicate}`);
+      if (p.notify || p.indicate) {
+        writeChar = c;
+        notifyChar = c;
+      }
+    }
+    if (!writeChar && chars.length > 0) writeChar = chars[0];
+
+    if (notifyChar) {
+      await notifyChar.startNotifications();
+      notifyChar.addEventListener('characteristicvaluechanged', onDataReceived);
+      addLog('通知已啟用');
+    }
+
+    document.getElementById('device-name-label').textContent = bleDevice.name || '';
+    addLog('連接成功，請登入');
+    showScreen('login');
+    document.getElementById('pwd-input').focus();
+  } catch (err) {
+    addLog('錯誤: ' + err.message);
+    showToast('連接失敗: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '掃描並連接';
+  }
+}
+
+function onDisconnected() {
+  addLog('設備已斷線');
+  showToast('設備已斷線');
+  writeChar = null;
+  showScreen('connect');
+  document.getElementById('dot-connect').classList.remove('connected');
+}
+
+async function disconnectBLE() {
+  if (bleDevice && bleDevice.gatt.connected) {
+    bleDevice.gatt.disconnect();
+  }
+  showScreen('connect');
+}
+
+// =============================================
+//   Send
+// =============================================
+
+async function sendCommand(cmd, data) {
+  if (!writeChar) { showToast('未連接'); return; }
+  const frame = buildFrame(cmd, data);
+  await packSplitAndSend(frame);
+}
+
+async function packSplitAndSend(bigPack) {
+  const SMALL_MAX = 18;
+  const totalLen = bigPack.length;
+  const packCount = Math.ceil(totalLen / SMALL_MAX);
+
+  for (let packIndex = 0; packIndex < packCount; packIndex++) {
+    const startIndex = packIndex * SMALL_MAX;
+    const slice = bigPack.slice(startIndex, startIndex + SMALL_MAX);
+    const isEnd = packIndex === packCount - 1 ? 1 : 0;
+    const zLength = decimalToBitArray(slice.length + 2, 5);
+    const txzIndex = decimalToBitArray(packIndex % 4, 2);
+    const headerByte = bitsToBytes([...zLength, ...txzIndex, isEnd]);
+    const indexByte = [packIndex & 0xFF];
+    const packet = new Uint8Array([...headerByte, ...indexByte, ...slice]);
+
+    try {
+      if (writeChar.properties.writeWithoutResponse) {
+        await writeChar.writeValueWithoutResponse(packet);
+      } else {
+        await writeChar.writeValue(packet);
+      }
+    } catch (e) {
+      addLog('寫入失敗: ' + e.message);
+    }
+
+    if (packCount > 1) await delay(25);
+  }
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// =============================================
+//   Receive
+// =============================================
+
+function onDataReceived(event) {
+  const data = new Uint8Array(event.target.value.buffer);
+  if (data.length === 2 && data[0] === 0 && data[1] === 0) return;
+
+  const isLast = data[0] % 2 === 1;
+  const payload = Array.from(data.slice(2));
+
+  if (isLast) {
+    receiveBuffer.push(...payload);
+    processPacket([...receiveBuffer]);
+    receiveBuffer = [];
+  } else {
+    if (data.length > 2) receiveBuffer.push(...payload);
+  }
+}
+
+function processPacket(data) {
+  if (data.length < 5) return;
+  const cmdCode = data[4];
+  addLog(`← RSP 0x${cmdCode.toString(16).toUpperCase().padStart(2,'0')}`);
+
+  if (cmdCode === RSP.LOGIN_RESULT) {
+    if (data[5] === 0x01) {
+      showToast('✅ 登入成功');
+      showScreen('control');
+      sendCommand(CMD.GET_DEVICE_INFO, [0x01]);
+    } else {
+      showToast('❌ 密碼錯誤');
+    }
+  } else if (cmdCode === RSP.DEVICE_INFO) {
+    let productId = '';
+    for (let i = 0; i < 8; i++) productId += String.fromCharCode(data[5 + i]);
+    const ver = `${String.fromCharCode(data[17])}${String.fromCharCode(data[18])}.${String.fromCharCode(data[19])}${String.fromCharCode(data[20])}`;
+    addLog(`設備: ${productId.trim()} v${ver}`);
+    document.getElementById('device-name-label').textContent = productId.trim();
+  } else if (cmdCode === RSP.FUNC_STATUS) {
+    addLog('功能狀態已更新');
+  } else if (cmdCode === RSP.TESLA_SETTINGS) {
+    addLog('Tesla 設定已接收');
+  }
+}
+
+// =============================================
+//   Actions
+// =============================================
+
+async function doLogin() {
+  const pwd = document.getElementById('pwd-input').value.trim();
+  if (!pwd) { showToast('請輸入密碼'); return; }
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true;
+  btn.textContent = '登入中...';
+  try {
+    await sendCommand(CMD.LOGIN, stringToBytes(pwd));
+    localStorage.setItem('klovef_pwd', pwd);
+    addLog('→ LOGIN 已送出');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '登入';
+  }
+}
+
+async function manual(code) {
+  await sendCommand(CMD.MANUAL_CTRL, [code]);
+  addLog(`→ MANUAL 0x${code.toString(16).toUpperCase().padStart(2,'0')}`);
+}
+
+async function sendGetDeviceInfo() {
+  await sendCommand(CMD.GET_DEVICE_INFO, [0x01]);
+}
+
+// =============================================
+//   UI helpers
+// =============================================
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function addLog(msg) {
+  const box = document.getElementById('log-box');
+  box.innerHTML += msg + '<br>';
+  box.scrollTop = box.scrollHeight;
+}
+
+// restore saved password
+window.onload = () => {
+  const saved = localStorage.getItem('klovef_pwd');
+  if (saved) document.getElementById('pwd-input').value = saved;
+};
+</script>
+</body>
+</html>
