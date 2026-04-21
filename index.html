@@ -621,22 +621,34 @@ function toggleFeat(i) {
   addLog(`→ FUNC_CTRL 0x${code.toString(16).toUpperCase().padStart(2,'0')} (${item.name || item.title})`);
 }
 
+function updateAnnualBtn() {
+  const btn = document.getElementById('btn-annual');
+  if (!btn) return;
+  btn.innerHTML = `<span class="icon">🔍</span>年檢模式：${annualModeOn ? '開' : '關'}`;
+  btn.classList.toggle('danger', annualModeOn);
+}
+
 function handleFuncStatus(data) {
-  if (!featList.length) return;
+  if (!featLevels.length) {
+    addLog('← FUNC_STATUS 已收到（功能列表未載入，略過解析）');
+    return;
+  }
   let currGroup = [];
   for (let i = 1; i <= featLevels.length; i++) {
     currGroup = currGroup.concat(decimalToBitArrayReversed(data[4 + i], featMaxIndex[i - 1]));
   }
+  addLog(`← FUNC_STATUS bits[0..${currGroup.length-1}]: ${currGroup.join('')}`);
+
   for (let i = 0; i < featList.length; i++) {
     featList[i].valueIndex = currGroup[featList[i].index] === 1 ? 0 : 1;
-    const item = featList[i];
-    if ((item.name || item.title) === '年检模式') {
-      annualModeOn = item.valueIndex === 0;
-      const btn = document.getElementById('btn-annual');
-      if (btn) {
-        btn.innerHTML = `<span class="icon">🔍</span>年檢模式：${annualModeOn ? '開' : '關'}`;
-        btn.classList.toggle('danger', annualModeOn);
-      }
+    // match annual mode by openCode 0x10
+    const oc = typeof featList[i].openCode === 'string'
+      ? parseInt(featList[i].openCode, 16)
+      : featList[i].openCode;
+    if (oc === 0x10) {
+      annualModeOn = featList[i].valueIndex === 0;
+      updateAnnualBtn();
+      showToast('年檢模式：' + (annualModeOn ? '開' : '關'));
     }
   }
   renderFeatList();
@@ -807,6 +819,14 @@ function processPacket(data) {
     document.getElementById('device-name-label').textContent = productId;
     loadVersionConfig(cVersion);
   } else if (cmdCode === RSP.FUNC_STATUS) {
+    // 年检模式: level=2 (byte offset data[6]), index=15, maxIndex=8
+    // decimalToBitArrayReversed(data[6], 8)[7] gives the bit at global index 15
+    if (data.length > 6) {
+      const annualBit = decimalToBitArrayReversed(data[6], 8)[7];
+      annualModeOn = annualBit === 1;
+      updateAnnualBtn();
+      showToast('年檢模式：' + (annualModeOn ? '開' : '關'));
+    }
     handleFuncStatus(data);
   } else if (cmdCode === RSP.TESLA_SETTINGS) {
     addLog('Tesla 設定已接收');
@@ -909,6 +929,9 @@ const SUB_TITLES = {
 function openSubPage(id) {
   if (id === 'set-params' || id === 'set-custom') {
     sendCommand(CMD.PARAM_SETTING, [0x00]);
+  }
+  if (id === 'set-manual') {
+    sendCommand(CMD.GET_INIT_INFO, [0x05]);
   }
   document.querySelectorAll('.set-screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
