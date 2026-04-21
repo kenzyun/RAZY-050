@@ -23,15 +23,15 @@
   body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
 
   /* screens */
-  .screen { display: none; flex-direction: column; min-height: 100vh; }
+  .screen { display: none; flex-direction: column; height: 100dvh; height: 100vh; }
   .screen.active { display: flex; }
 
   /* header */
-  .header { background: var(--red); padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
+  .header { background: var(--red); padding: 16px 20px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
   .header .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; opacity: 0.5; flex-shrink: 0; }
   .header .status-dot.connected { background: var(--green); opacity: 1; }
-  .back-btn { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 0 8px 0 0; line-height: 1; }
+  .back-btn { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 0 8px 0 0; line-height: 1; flex-shrink: 0; }
 
   /* connect screen */
   .connect-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; gap: 24px; }
@@ -51,10 +51,40 @@
   .input-group input { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-size: 16px; color: var(--text); width: 100%; outline: none; }
   .input-group input:focus { border-color: var(--red); }
 
-  /* control screen */
-  .control-body { flex: 1; overflow-y: auto; padding: 16px; }
+  /* control screen layout */
+  .ctrl-panel { flex: 1; display: none; flex-direction: column; overflow: hidden; min-height: 0; }
+  .ctrl-panel.active { display: flex; }
+
+  /* set-screen (main + sub-pages within settings) */
+  .set-screen { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
+  .set-screen.active { display: flex; }
+
+  /* scrollable body inside each set-screen */
+  .control-body { flex: 1; overflow-y: auto; padding: 16px; min-height: 0; }
+
+  /* section titles */
   .section-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px; padding-left: 4px; }
   .section-title:first-child { margin-top: 0; }
+
+  /* nav group (list-style cells) */
+  .nav-group { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 4px; }
+  .nav-cell { display: flex; justify-content: space-between; align-items: center; padding: 15px 16px; font-size: 15px; cursor: pointer; border-bottom: 1px solid var(--border); user-select: none; }
+  .nav-cell:last-child { border-bottom: none; }
+  .nav-cell:active { background: #2a2a2a; }
+  .nav-arrow { color: var(--muted); font-size: 20px; line-height: 1; }
+  .danger-text { color: #ef4444; }
+
+  /* feature toggle rows */
+  .feat-list { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 4px; }
+  .feat-item { display: flex; justify-content: space-between; align-items: center; padding: 13px 16px; font-size: 14px; border-bottom: 1px solid var(--border); }
+  .feat-item:last-child { border-bottom: none; }
+  .feat-title { flex: 1; padding-right: 12px; line-height: 1.3; }
+  .feat-toggle { border: none; border-radius: 16px; padding: 5px 16px; font-size: 13px; font-weight: 600; cursor: pointer; min-width: 52px; transition: background 0.15s; }
+  .feat-toggle.on { background: var(--green); color: #fff; }
+  .feat-toggle.off { background: #333; color: var(--muted); }
+  .feat-empty { color: var(--muted); font-size: 13px; padding: 14px 16px; text-align: center; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
+
+  /* manual control grid */
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
   .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
   .btn-ctrl { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 10px; font-size: 14px; color: var(--text); cursor: pointer; text-align: center; line-height: 1.3; transition: background 0.1s, transform 0.1s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -62,12 +92,30 @@
   .btn-ctrl:active { background: #2a2a2a; transform: scale(0.96); }
   .btn-ctrl.danger { border-color: #7f1d1d; }
   .btn-ctrl.danger:active { background: #3b0000; }
+  .btn-ctrl.pressing { background: #3a1010; border-color: var(--red); transform: scale(0.96); }
+
+  /* param cards */
+  .param-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+  .param-card-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+  .form-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+  .form-row label { font-size: 12px; color: var(--muted); }
+  .form-row select, .form-row input[type="password"] { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 9px 10px; color: var(--text); font-size: 14px; width: 100%; -webkit-appearance: none; appearance: none; outline: none; }
+  .form-row input[type="password"]:focus { border-color: var(--red); }
+  .btn-confirm { background: var(--red); color: #fff; border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 4px; }
+  .btn-confirm:active { background: var(--red-dark); }
+
+  /* custom function accordion */
+  .cf-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
+  .cf-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 14px; font-weight: 500; user-select: none; }
+  .cf-arrow { color: var(--muted); font-size: 20px; transition: transform 0.2s; line-height: 1; }
+  .cf-arrow.open { transform: rotate(90deg); }
+  .cf-body { padding: 12px 16px 14px; border-top: 1px solid var(--border); }
 
   /* toast */
   .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: #222; color: var(--text); border-radius: 24px; padding: 10px 22px; font-size: 14px; pointer-events: none; opacity: 0; transition: opacity 0.3s; z-index: 999; white-space: nowrap; max-width: 90vw; text-overflow: ellipsis; overflow: hidden; }
   .toast.show { opacity: 1; }
 
-  /* status bar in header */
+  /* header accessories */
   .header-right { margin-left: auto; font-size: 12px; color: rgba(255,255,255,0.7); }
 </style>
 </head>
@@ -108,85 +156,293 @@
 
 <!-- ======== SCREEN: Control ======== -->
 <div id="screen-control" class="screen">
-  <div class="header">
+  <div class="header" id="ctrl-header">
+    <button class="back-btn" id="ctrl-back-btn" style="display:none" onclick="closeSubPage()">‹</button>
     <div class="status-dot connected" id="dot-ctrl"></div>
-    <h1>Tesla 控制</h1>
+    <h1 id="ctrl-title">Tesla 設置</h1>
     <div class="header-right" id="device-name-label"></div>
   </div>
-  <div class="control-body">
 
-    <div class="section-title">🔒 車鎖</div>
-    <div class="grid">
-      <button class="btn-ctrl" onclick="manual(0x01)"><span class="icon">🔒</span>上鎖</button>
-      <button class="btn-ctrl" onclick="manual(0x02)"><span class="icon">🔓</span>開鎖</button>
+  <div id="ctab-settings" class="ctrl-panel active">
+
+    <!-- ── 設置主頁面 ── -->
+    <div id="set-home" class="set-screen active">
+      <div class="control-body">
+
+        <div class="section-title">功能開關</div>
+        <div id="feat-list">
+          <div class="feat-empty">登入後自動載入...</div>
+        </div>
+        <div id="feat-load-ui" style="display:none; margin-top:8px">
+          <div class="feat-empty" style="text-align:left; line-height:1.7">
+            ⚠️ 無法自動載入（CORS 限制）<br>
+            請用瀏覽器開啟以下網址，儲存 JSON 檔案後選取：<br>
+            <a id="feat-url-link" href="#" target="_blank"
+               style="color:#60a5fa; word-break:break-all; font-size:12px"></a>
+          </div>
+          <label class="btn-confirm" style="display:block; text-align:center; margin-top:8px; cursor:pointer">
+            選取 JSON 檔案
+            <input type="file" accept=".json,application/json" style="display:none"
+                   onchange="loadFeatJson(this)">
+          </label>
+        </div>
+
+        <div class="section-title">Tesla 設置</div>
+        <div class="nav-group">
+          <div class="nav-cell" onclick="openSubPage('set-params')">
+            <span>參數設置</span><span class="nav-arrow">›</span>
+          </div>
+          <div class="nav-cell" onclick="openSubPage('set-manual')">
+            <span>手動控制</span><span class="nav-arrow">›</span>
+          </div>
+          <div class="nav-cell" onclick="openSubPage('set-custom')">
+            <span>自定義功能</span><span class="nav-arrow">›</span>
+          </div>
+        </div>
+
+        <div class="section-title">系統</div>
+        <div class="nav-group">
+          <div class="nav-cell" onclick="openSubPage('set-pwd')">
+            <span>密碼修改</span><span class="nav-arrow">›</span>
+          </div>
+          <div class="nav-cell" onclick="confirmReset()">
+            <span class="danger-text">恢復默認設置</span><span class="nav-arrow danger-text">›</span>
+          </div>
+        </div>
+
+        <div style="height:20px"></div>
+      </div>
     </div>
 
-    <div class="section-title">🚪 車門</div>
-    <div class="grid grid-3">
-      <button class="btn-ctrl" onclick="manual(0x03)"><span class="icon">🚪</span>右前門</button>
-      <button class="btn-ctrl" onclick="manual(0x05)"><span class="icon">🚪</span>左後門</button>
-      <button class="btn-ctrl" onclick="manual(0x04)"><span class="icon">🚪</span>右後門</button>
+    <!-- ── 子頁面：參數設置 ── -->
+    <div id="set-params" class="set-screen">
+      <div class="control-body">
+
+        <div class="param-card">
+          <div class="param-card-title">AP 控制參數</div>
+          <div class="form-row">
+            <label>AP 控制模式</label>
+            <select id="ap-mode">
+              <option value="0x00">左滾輪先加後減</option>
+              <option value="0x01">左滾輪先減後加</option>
+              <option value="0x02">右滾輪先加後減</option>
+              <option value="0x03">右滾輪先減後加</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>AP 控制加減時間</label>
+            <select id="ap-time">
+              <option value="0x01">0.1 秒</option>
+              <option value="0x02">0.2 秒</option>
+              <option value="0x03">0.3 秒</option>
+              <option value="0x04">0.4 秒</option>
+              <option value="0x05">0.5 秒</option>
+              <option value="0x06">0.6 秒</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>AP 控制間隔時間</label>
+            <select id="ap-interval">
+              <option value="0x01">1 秒</option>
+              <option value="0x02">2 秒</option>
+              <option value="0x03">3 秒</option>
+              <option value="0x04">4 秒</option>
+              <option value="0x05">5 秒</option>
+              <option value="0x06">6 秒</option>
+            </select>
+          </div>
+          <button class="btn-confirm" onclick="sendParam(0x01,['ap-mode','ap-time','ap-interval'])">確定</button>
+        </div>
+
+        <div class="param-card">
+          <div class="param-card-title">遠光爆閃控制參數</div>
+          <div class="form-row">
+            <label>遠光爆閃模式</label>
+            <select id="flash1-mode">
+              <option value="0x00">快</option>
+              <option value="0x01">中</option>
+              <option value="0x02">慢</option>
+            </select>
+          </div>
+          <button class="btn-confirm" onclick="sendParam(0x02,['flash1-mode'])">確定</button>
+        </div>
+
+        <div class="param-card">
+          <div class="param-card-title">前霧燈爆閃控制參數</div>
+          <div class="form-row">
+            <label>前霧燈爆閃模式</label>
+            <select id="flash2-mode">
+              <option value="0x00">快</option>
+              <option value="0x01">中</option>
+              <option value="0x02">慢</option>
+            </select>
+          </div>
+          <button class="btn-confirm" onclick="sendParam(0x03,['flash2-mode'])">確定</button>
+        </div>
+
+        <div class="param-card">
+          <div class="param-card-title">後霧燈爆閃控制參數</div>
+          <div class="form-row">
+            <label>後霧燈爆閃模式</label>
+            <select id="flash3-mode">
+              <option value="0x00">快</option>
+              <option value="0x01">中</option>
+              <option value="0x02">慢</option>
+            </select>
+          </div>
+          <button class="btn-confirm" onclick="sendParam(0x04,['flash3-mode'])">確定</button>
+        </div>
+
+        <div class="param-card">
+          <div class="param-card-title">脈衝喇叭控制參數</div>
+          <div class="form-row">
+            <label>間隔時間</label>
+            <select id="horn-interval">
+              <option value="0x01">0.1 秒</option>
+              <option value="0x02">0.2 秒</option>
+              <option value="0x03">0.3 秒</option>
+              <option value="0x04">0.4 秒</option>
+              <option value="0x05">0.5 秒</option>
+              <option value="0x06">0.6 秒</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>脈衝時間</label>
+            <select id="horn-pulse">
+              <option value="0x01">0.01 秒</option>
+              <option value="0x02">0.02 秒</option>
+              <option value="0x03">0.03 秒</option>
+              <option value="0x04">0.04 秒</option>
+              <option value="0x05">0.05 秒</option>
+              <option value="0x06">0.06 秒</option>
+            </select>
+          </div>
+          <button class="btn-confirm" onclick="sendParam(0x05,['horn-interval','horn-pulse'])">確定</button>
+        </div>
+
+        <div style="height:20px"></div>
+      </div>
     </div>
 
-    <div class="section-title">📦 箱蓋</div>
-    <div class="grid">
-      <button class="btn-ctrl" onclick="manual(0x06)"><span class="icon">📦</span>開後備箱</button>
-      <button class="btn-ctrl" onclick="manual(0x07)"><span class="icon">✅</span>關後備箱</button>
-      <button class="btn-ctrl" onclick="manual(0x08)"><span class="icon">📦</span>開前備箱</button>
-      <button class="btn-ctrl" onclick="manual(0x09)"><span class="icon">✅</span>關前備箱</button>
-      <button class="btn-ctrl" onclick="manual(0x0A)"><span class="icon">🗃️</span>打開手套箱</button>
-      <button class="btn-ctrl" onclick="manual(0x0B)"><span class="icon">🔌</span>開充電蓋板</button>
-      <button class="btn-ctrl" onclick="manual(0x0C)"><span class="icon">✅</span>關充電蓋板</button>
+    <!-- ── 子頁面：手動控制 ── -->
+    <div id="set-manual" class="set-screen">
+      <div class="control-body">
+
+        <div class="section-title">🔒 車鎖</div>
+        <div class="grid">
+          <button class="btn-ctrl" onclick="manual(0x01)"><span class="icon">🔒</span>上鎖</button>
+          <button class="btn-ctrl" onclick="manual(0x02)"><span class="icon">🔓</span>開鎖</button>
+        </div>
+
+        <div class="section-title">🚪 車門</div>
+        <div class="grid grid-3">
+          <button class="btn-ctrl" onclick="manual(0x03)"><span class="icon">🚪</span>右前門</button>
+          <button class="btn-ctrl" onclick="manual(0x05)"><span class="icon">🚪</span>左後門</button>
+          <button class="btn-ctrl" onclick="manual(0x04)"><span class="icon">🚪</span>右後門</button>
+        </div>
+
+        <div class="section-title">📦 箱蓋</div>
+        <div class="grid">
+          <button class="btn-ctrl" onclick="manual(0x06)"><span class="icon">📦</span>開後備箱</button>
+          <button class="btn-ctrl" onclick="manual(0x07)"><span class="icon">✅</span>關後備箱</button>
+          <button class="btn-ctrl" onclick="manual(0x08)"><span class="icon">📦</span>開前備箱</button>
+          <button class="btn-ctrl" onclick="manual(0x09)"><span class="icon">✅</span>關前備箱</button>
+          <button class="btn-ctrl" onclick="manual(0x0A)"><span class="icon">🗃️</span>打開手套箱</button>
+          <button class="btn-ctrl" onclick="manual(0x0B)"><span class="icon">🔌</span>開充電蓋板</button>
+          <button class="btn-ctrl" onclick="manual(0x0C)"><span class="icon">✅</span>關充電蓋板</button>
+        </div>
+
+        <div class="section-title">💡 燈光</div>
+        <div class="grid">
+          <button class="btn-ctrl" onclick="manual(0x11)"><span class="icon">💡</span>遠光爆閃</button>
+          <button class="btn-ctrl" onclick="manual(0x12)"><span class="icon">🔦</span>前霧爆閃</button>
+          <button class="btn-ctrl" onclick="manual(0x13)"><span class="icon">🔦</span>前霧領航</button>
+          <button class="btn-ctrl" onclick="manual(0x14)"><span class="icon">🔦</span>後霧爆閃</button>
+          <button class="btn-ctrl" onclick="manual(0x15)"><span class="icon">🔦</span>後霧領航</button>
+        </div>
+
+        <div class="section-title">📢 喇叭</div>
+        <div class="grid grid-3">
+          <button class="btn-ctrl" onclick="manual(0x16)"><span class="icon">📢</span>脈衝</button>
+          <button class="btn-ctrl" onclick="manual(0x17)"><span class="icon">🔔</span>低聲×1</button>
+          <button class="btn-ctrl" onclick="manual(0x18)"><span class="icon">🔔</span>低聲×2</button>
+          <button class="btn-ctrl" onclick="manual(0x19)"><span class="icon">🔔</span>低聲×3</button>
+        </div>
+
+        <div class="section-title">💺 副駕座椅（長按持續動作）</div>
+        <div class="grid">
+          <button class="btn-ctrl"
+            onmousedown="manualHoldStart(this,0x0D)" onmouseup="manualHoldEnd(this)" onmouseleave="manualHoldEnd(this)"
+            ontouchstart="manualHoldStart(this,0x0D)" ontouchend="manualHoldEnd(this)" ontouchcancel="manualHoldEnd(this)">
+            <span class="icon">⬆️</span>前移
+          </button>
+          <button class="btn-ctrl"
+            onmousedown="manualHoldStart(this,0x0E)" onmouseup="manualHoldEnd(this)" onmouseleave="manualHoldEnd(this)"
+            ontouchstart="manualHoldStart(this,0x0E)" ontouchend="manualHoldEnd(this)" ontouchcancel="manualHoldEnd(this)">
+            <span class="icon">⬇️</span>後退
+          </button>
+          <button class="btn-ctrl"
+            onmousedown="manualHoldStart(this,0x0F)" onmouseup="manualHoldEnd(this)" onmouseleave="manualHoldEnd(this)"
+            ontouchstart="manualHoldStart(this,0x0F)" ontouchend="manualHoldEnd(this)" ontouchcancel="manualHoldEnd(this)">
+            <span class="icon">↩️</span>靠背前移
+          </button>
+          <button class="btn-ctrl"
+            onmousedown="manualHoldStart(this,0x10)" onmouseup="manualHoldEnd(this)" onmouseleave="manualHoldEnd(this)"
+            ontouchstart="manualHoldStart(this,0x10)" ontouchend="manualHoldEnd(this)" ontouchcancel="manualHoldEnd(this)">
+            <span class="icon">↪️</span>靠背後移
+          </button>
+          <button class="btn-ctrl" onclick="manual(0x1A)"><span class="icon">1️⃣</span>位置1</button>
+          <button class="btn-ctrl" onclick="manual(0x1B)"><span class="icon">2️⃣</span>位置2</button>
+          <button class="btn-ctrl" onclick="manual(0x1C)"><span class="icon">3️⃣</span>位置3</button>
+          <button class="btn-ctrl" onclick="manual(0x1D)"><span class="icon">💆</span>按摩</button>
+        </div>
+
+        <div class="section-title">💺 主駕座椅</div>
+        <div class="grid">
+          <button class="btn-ctrl" onclick="manual(0x1F)"><span class="icon">💆</span>按摩</button>
+        </div>
+
+        <div class="section-title">🔋 電池</div>
+        <div class="grid">
+          <button class="btn-ctrl" onclick="manual(0x20)"><span class="icon">🔥</span>開電池預熱</button>
+          <button class="btn-ctrl" onclick="manual(0x21)"><span class="icon">❄️</span>關電池預熱</button>
+        </div>
+
+        <div class="section-title">⚙️ 設備</div>
+        <div class="grid">
+          <button class="btn-ctrl" id="btn-annual" onclick="toggleAnnual()"><span class="icon">🔍</span>年檢模式：關</button>
+          <button class="btn-ctrl danger" onclick="disconnectBLE()"><span class="icon">🔌</span>斷開藍牙</button>
+        </div>
+
+        <div style="height:20px"></div>
+      </div>
     </div>
 
-    <div class="section-title">💡 燈光</div>
-    <div class="grid">
-      <button class="btn-ctrl" onclick="manual(0x11)"><span class="icon">💡</span>遠光爆閃</button>
-      <button class="btn-ctrl" onclick="manual(0x12)"><span class="icon">🔦</span>前霧爆閃</button>
-      <button class="btn-ctrl" onclick="manual(0x13)"><span class="icon">🔦</span>前霧領航</button>
-      <button class="btn-ctrl" onclick="manual(0x14)"><span class="icon">🔦</span>後霧爆閃</button>
-      <button class="btn-ctrl" onclick="manual(0x15)"><span class="icon">🔦</span>後霧領航</button>
+    <!-- ── 子頁面：自定義功能 ── -->
+    <div id="set-custom" class="set-screen">
+      <div class="control-body">
+        <div id="custom-func-list"></div>
+        <div style="height:20px"></div>
+      </div>
     </div>
 
-    <div class="section-title">📢 喇叭</div>
-    <div class="grid grid-3">
-      <button class="btn-ctrl" onclick="manual(0x16)"><span class="icon">📢</span>脈衝</button>
-      <button class="btn-ctrl" onclick="manual(0x17)"><span class="icon">🔔</span>低聲×1</button>
-      <button class="btn-ctrl" onclick="manual(0x18)"><span class="icon">🔔</span>低聲×2</button>
-      <button class="btn-ctrl" onclick="manual(0x19)"><span class="icon">🔔</span>低聲×3</button>
+    <!-- ── 子頁面：密碼修改 ── -->
+    <div id="set-pwd" class="set-screen">
+      <div class="control-body">
+        <div class="section-title">修改設備密碼</div>
+        <div class="param-card">
+          <div class="form-row">
+            <label>新密碼</label>
+            <input type="password" id="new-pwd-input" placeholder="輸入新密碼" maxlength="16"
+                   onkeydown="if(event.key==='Enter')doChangePwd()">
+          </div>
+          <button class="btn-confirm" onclick="doChangePwd()">確認修改</button>
+        </div>
+      </div>
     </div>
 
-    <div class="section-title">💺 副駕座椅</div>
-    <div class="grid">
-      <button class="btn-ctrl" onclick="manual(0x0D)"><span class="icon">⬆️</span>前移</button>
-      <button class="btn-ctrl" onclick="manual(0x0E)"><span class="icon">⬇️</span>後退</button>
-      <button class="btn-ctrl" onclick="manual(0x0F)"><span class="icon">↩️</span>靠背前移</button>
-      <button class="btn-ctrl" onclick="manual(0x10)"><span class="icon">↪️</span>靠背後移</button>
-      <button class="btn-ctrl" onclick="manual(0x1A)"><span class="icon">1️⃣</span>位置1</button>
-      <button class="btn-ctrl" onclick="manual(0x1B)"><span class="icon">2️⃣</span>位置2</button>
-      <button class="btn-ctrl" onclick="manual(0x1C)"><span class="icon">3️⃣</span>位置3</button>
-      <button class="btn-ctrl" onclick="manual(0x1D)"><span class="icon">💆</span>按摩</button>
-    </div>
+  </div><!-- end ctab-settings -->
 
-    <div class="section-title">💺 主駕座椅</div>
-    <div class="grid">
-      <button class="btn-ctrl" onclick="manual(0x1F)"><span class="icon">💆</span>按摩</button>
-    </div>
-
-    <div class="section-title">🔋 電池</div>
-    <div class="grid">
-      <button class="btn-ctrl" onclick="manual(0x20)"><span class="icon">🔥</span>開電池預熱</button>
-      <button class="btn-ctrl" onclick="manual(0x21)"><span class="icon">❄️</span>關電池預熱</button>
-    </div>
-
-    <div class="section-title">⚙️ 設備</div>
-    <div class="grid">
-      <button class="btn-ctrl danger" onclick="sendGetDeviceInfo()"><span class="icon">ℹ️</span>設備資訊</button>
-      <button class="btn-ctrl danger" onclick="disconnectBLE()"><span class="icon">🔌</span>斷開連接</button>
-    </div>
-
-    <div style="height: 32px;"></div>
-  </div>
 </div>
 
 <!-- Toast -->
@@ -225,6 +481,10 @@ function decimalToBitArray(decimal, targetLength) {
   return bits;
 }
 
+function decimalToBitArrayReversed(decimal, targetLength) {
+  return decimalToBitArray(decimal, targetLength).reverse();
+}
+
 function bitsToBytes(bits) {
   const bytes = [];
   for (let i = 0; i < bits.length; i += 8) {
@@ -253,12 +513,135 @@ function stringToBytes(str) {
 // =============================================
 
 const BLE_SERVICE_UUID = '0000fee7-0000-1000-8000-00805f9b34fb';
-const CMD = { LOGIN: 0x01, GET_DEVICE_INFO: 0x41, GET_INIT_INFO: 0x44, FUNC_CTRL: 0x45, CUSTOM_FUNC: 0x46, MANUAL_CTRL: 0x47, PARAM_SETTING: 0x48 };
+const CMD = {
+  LOGIN: 0x01,
+  GET_DEVICE_INFO: 0x41,
+  CHANGE_PWD: 0x43,
+  GET_INIT_INFO: 0x44,
+  FUNC_CTRL: 0x45,
+  CUSTOM_FUNC: 0x46,
+  MANUAL_CTRL: 0x47,
+  PARAM_SETTING: 0x48,
+  FACTORY_RESET: 0xFF
+};
 const RSP = { LOGIN_RESULT: 0x11, DEVICE_INFO: 0x81, FUNC_STATUS: 0x84, TESLA_SETTINGS: 0x88 };
 
 let bleDevice = null;
 let writeChar = null;
 let receiveBuffer = [];
+
+// =============================================
+//   Feature list state
+// =============================================
+
+let featList = [];
+let featLevels = [];
+let featMaxIndex = [];
+let cVersion = '';
+
+async function loadVersionConfig(ver) {
+  const url = 'https://kelove.net.cn/' + ver + '.json';
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    applyFeatList(data);
+  } catch (e) {
+    addLog('功能列表自動載入失敗: ' + e.message);
+    showFeatLoadUI(url);
+  }
+}
+
+function applyFeatList(data) {
+  featList = data.map(item => ({ ...item, valueIndex: 1 }));
+  featLevels = [];
+  featMaxIndex = [];
+  for (const item of featList) {
+    if (!featLevels.includes(item.level)) {
+      featLevels.push(item.level);
+      featMaxIndex.push(item.maxIndex);
+    }
+  }
+  document.getElementById('feat-load-ui').style.display = 'none';
+  renderFeatList();
+  addLog('功能列表已載入 ' + featList.length + ' 項');
+  sendCommand(CMD.GET_INIT_INFO, [0x05]);
+}
+
+function showFeatLoadUI(url) {
+  document.getElementById('feat-load-ui').style.display = '';
+  const link = document.getElementById('feat-url-link');
+  link.href = url;
+  link.textContent = url;
+}
+
+function loadFeatJson(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      applyFeatList(data);
+      showToast('功能列表已載入 ' + featList.length + ' 項');
+    } catch (err) {
+      showToast('JSON 格式錯誤: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function renderFeatList() {
+  const container = document.getElementById('feat-list');
+  if (!featList.length) {
+    container.innerHTML = '<div class="feat-empty">暫無功能項目</div>';
+    return;
+  }
+  let html = '<div class="feat-list">';
+  for (let i = 0; i < featList.length; i++) {
+    const item = featList[i];
+    const isOn = item.valueIndex === 0;
+    html += `<div class="feat-item">
+  <span class="feat-title">${item.name || item.title || '項目 ' + (i+1)}</span>
+  <button class="feat-toggle ${isOn ? 'on' : 'off'}" onclick="toggleFeat(${i})">${isOn ? '開' : '關'}</button>
+</div>`;
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function toggleFeat(i) {
+  const item = featList[i];
+  const newStatus = item.valueIndex === 0 ? 1 : 0;
+  const rawCode = newStatus === 0 ? item.openCode : item.closeCode;
+  const code = typeof rawCode === 'string' ? parseInt(rawCode, 16) : rawCode;
+  sendCommand(CMD.FUNC_CTRL, [code]);
+  item.valueIndex = newStatus;
+  renderFeatList();
+  addLog(`→ FUNC_CTRL 0x${code.toString(16).toUpperCase().padStart(2,'0')} (${item.name || item.title})`);
+}
+
+function handleFuncStatus(data) {
+  if (!featList.length) return;
+  let currGroup = [];
+  for (let i = 1; i <= featLevels.length; i++) {
+    currGroup = currGroup.concat(decimalToBitArrayReversed(data[4 + i], featMaxIndex[i - 1]));
+  }
+  for (let i = 0; i < featList.length; i++) {
+    featList[i].valueIndex = currGroup[featList[i].index] === 1 ? 0 : 1;
+    const item = featList[i];
+    if ((item.name || item.title) === '年检模式') {
+      annualModeOn = item.valueIndex === 0;
+      const btn = document.getElementById('btn-annual');
+      if (btn) {
+        btn.innerHTML = `<span class="icon">🔍</span>年檢模式：${annualModeOn ? '開' : '關'}`;
+        btn.classList.toggle('danger', annualModeOn);
+      }
+    }
+  }
+  renderFeatList();
+  addLog('功能狀態已更新');
+}
 
 // =============================================
 //   Connection
@@ -413,11 +796,18 @@ function processPacket(data) {
   } else if (cmdCode === RSP.DEVICE_INFO) {
     let productId = '';
     for (let i = 0; i < 8; i++) productId += String.fromCharCode(data[5 + i]);
-    const ver = `${String.fromCharCode(data[17])}${String.fromCharCode(data[18])}.${String.fromCharCode(data[19])}${String.fromCharCode(data[20])}`;
-    addLog(`設備: ${productId.trim()} v${ver}`);
-    document.getElementById('device-name-label').textContent = productId.trim();
+    productId = productId.trim();
+    const v1Temp = String.fromCharCode(data[17]);
+    const v2 = String.fromCharCode(data[18]);
+    const v3 = String.fromCharCode(data[19]);
+    const v4 = String.fromCharCode(data[20]);
+    cVersion = `${productId}_${v1Temp}${v2}${v3}${v4}`;
+    const ver = `${v1Temp}${v2}.${v3}${v4}`;
+    addLog(`設備: ${productId} v${ver}`);
+    document.getElementById('device-name-label').textContent = productId;
+    loadVersionConfig(cVersion);
   } else if (cmdCode === RSP.FUNC_STATUS) {
-    addLog('功能狀態已更新');
+    handleFuncStatus(data);
   } else if (cmdCode === RSP.TESLA_SETTINGS) {
     addLog('Tesla 設定已接收');
   }
@@ -448,8 +838,34 @@ async function manual(code) {
   addLog(`→ MANUAL 0x${code.toString(16).toUpperCase().padStart(2,'0')}`);
 }
 
-async function sendGetDeviceInfo() {
-  await sendCommand(CMD.GET_DEVICE_INFO, [0x01]);
+let annualModeOn = false;
+function toggleAnnual() {
+  annualModeOn = !annualModeOn;
+  const code = annualModeOn ? 0x10 : 0x90;
+  sendCommand(CMD.FUNC_CTRL, [code]);
+  const btn = document.getElementById('btn-annual');
+  btn.textContent = '';
+  btn.innerHTML = `<span class="icon">🔍</span>年檢模式：${annualModeOn ? '開' : '關'}`;
+  btn.classList.toggle('danger', annualModeOn);
+  addLog(`→ 年檢模式 ${annualModeOn ? '開' : '關'} (0x${code.toString(16).toUpperCase()})`);
+}
+
+function confirmReset() {
+  if (confirm('確定要恢復默認設置？此操作無法撤銷。')) {
+    sendCommand(CMD.FUNC_CTRL, [CMD.FACTORY_RESET]);
+    showToast('已送出恢復默認指令');
+    addLog('→ FACTORY RESET');
+  }
+}
+
+function doChangePwd() {
+  const pwd = document.getElementById('new-pwd-input').value.trim();
+  if (!pwd) { showToast('請輸入新密碼'); return; }
+  sendCommand(CMD.CHANGE_PWD, stringToBytes(pwd));
+  showToast('密碼修改指令已送出');
+  addLog('→ CHANGE_PWD');
+  document.getElementById('new-pwd-input').value = '';
+  closeSubPage();
 }
 
 // =============================================
@@ -459,6 +875,9 @@ async function sendGetDeviceInfo() {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
+  if (id === 'control') {
+    closeSubPage();
+  }
 }
 
 let toastTimer;
@@ -476,10 +895,151 @@ function addLog(msg) {
   box.scrollTop = box.scrollHeight;
 }
 
-// restore saved password
+// =============================================
+//   Sub-page navigation
+// =============================================
+
+const SUB_TITLES = {
+  'set-params': '參數設置',
+  'set-manual': '手動控制',
+  'set-custom': '自定義功能',
+  'set-pwd': '密碼修改'
+};
+
+function openSubPage(id) {
+  if (id === 'set-params' || id === 'set-custom') {
+    sendCommand(CMD.PARAM_SETTING, [0x00]);
+  }
+  document.querySelectorAll('.set-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('ctrl-title').textContent = SUB_TITLES[id] || 'Tesla 設置';
+  document.getElementById('ctrl-back-btn').style.display = '';
+  document.getElementById('device-name-label').style.display = 'none';
+}
+
+function closeSubPage() {
+  document.querySelectorAll('.set-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('set-home').classList.add('active');
+  document.getElementById('ctrl-title').textContent = 'Tesla 設置';
+  document.getElementById('ctrl-back-btn').style.display = 'none';
+  document.getElementById('device-name-label').style.display = '';
+}
+
+// =============================================
+//   Manual hold (long press for seat movement)
+// =============================================
+
+let holdActive = false;
+function manualHoldStart(el, code) {
+  if (holdActive) return;
+  holdActive = true;
+  el.classList.add('pressing');
+  sendCommand(CMD.MANUAL_CTRL, [code]);
+  addLog(`→ MANUAL HOLD START 0x${code.toString(16).toUpperCase().padStart(2,'0')}`);
+}
+function manualHoldEnd(el) {
+  if (!holdActive) return;
+  holdActive = false;
+  el.classList.remove('pressing');
+  sendCommand(CMD.MANUAL_CTRL, [0x00]);
+  addLog('→ MANUAL HOLD END');
+}
+
+// =============================================
+//   參數設置  (CMD 0x46)
+// =============================================
+
+function sendParam(code, fieldIds) {
+  const values = fieldIds.map(id => parseInt(document.getElementById(id).value, 16));
+  sendCommand(CMD.CUSTOM_FUNC, [code, ...values]);
+  addLog(`→ PARAM 0x${code.toString(16).padStart(2,'0')} [${values.map(v=>'0x'+v.toString(16).padStart(2,'0')).join(',')}]`);
+  showToast('已送出');
+}
+
+// =============================================
+//   自定義功能  (CMD 0x46, prefix 0x00)
+// =============================================
+
+const COMBO_OPTIONS = [
+  ['0x00','未定義'],['0x01','按右滾輪+喇叭'],['0x02','按右滾輪+拉左前窗升'],['0x03','按右滾輪+按左前窗降'],
+  ['0x04','按右滾輪+拉左後窗升'],['0x05','按右滾輪+拉左後窗降'],['0x06','按右滾輪+拉右前窗升'],['0x07','按右滾輪+按右前窗降'],
+  ['0x08','按右滾輪+拉右後窗升'],['0x09','按右滾輪+按右後窗降'],['0x0A','按右滾輪+拉遠光'],['0x0B','按右滾輪+左滾輪上'],
+  ['0x0C','按右滾輪+左滾輪下'],['0x0D','按右滾輪+左滾輪左'],['0x0E','按右滾輪+左滾輪右'],['0x0F','按右滾輪+主駕座椅前'],
+  ['0x10','按右滾輪+主駕座椅後'],['0x11','按右滾輪+主駕靠背前'],['0x12','按右滾輪+主駕靠背後'],
+  ['0x13','左前頂燈短按1再長按'],['0x14','左前頂燈短按2再長按'],['0x15','左前頂燈短按3再長按'],
+  ['0x16','左後頂燈短按1再長按'],['0x17','左後頂燈短按2再長按'],['0x18','左後頂燈短按3再長按'],
+  ['0x19','右前頂燈短按1再長按'],['0x1A','右前頂燈短按2再長按'],['0x1B','右前頂燈短按3再長按'],
+  ['0x1C','右後頂燈短按1再長按'],['0x1D','右後頂燈短按2再長按'],['0x1E','右後頂燈短按3再長按'],
+  ['0x1F','左前開門鍵短按1再長按'],['0x20','左前開門鍵短按2再長按'],['0x21','左前開門鍵短按3再長按'],
+  ['0x22','左後開門鍵短按1再長按'],['0x23','左後開門鍵短按2再長按'],['0x24','左後開門鍵短按3再長按'],
+  ['0x25','右前開門鍵短按1再長按'],['0x26','右前開門鍵短按2再長按'],['0x27','右前開門鍵短按3再長按'],
+  ['0x28','右後開門鍵短按1再長按'],['0x29','右後開門鍵短按2再長按'],['0x2A','右後開門鍵短按3再長按'],
+  ['0x2B','左前門把手短拉1再長拉'],['0x2C','左前門把手短拉2再長拉'],['0x2D','左前門把手短拉3再長拉'],
+  ['0x2E','左後門把手短拉1再長拉'],['0x2F','左後門把手短拉2再長拉'],['0x30','左後門把手短拉3再長拉'],
+  ['0x31','右前門把手短拉1再長拉'],['0x32','右前門把手短拉2再長拉'],['0x33','右前門把手短拉3再長拉'],
+  ['0x34','右後門把手短拉1再長拉'],['0x35','右後門把手短拉2再長拉'],['0x36','右後門把手短拉3再長拉'],
+  ['0x37','按左滾輪+左滾輪上'],['0x38','按左滾輪+左滾輪下'],
+  ['0x81','快速拉兩下遠光'],['0x82','按左滾輪+按右滾輪'],['0x83','快速按兩下左滾輪'],['0x84','快速按兩下右滾輪'],
+];
+
+const ACTION_OPTIONS = [
+  ['0x00','未定義'],['0x01','車輛上鎖'],['0x02','車輛開鎖'],['0x03','打開右前門'],['0x04','打開右後門'],
+  ['0x05','打開左後門'],['0x06','打開後備箱'],['0x07','關閉後備箱'],['0x08','打開前備箱'],['0x09','關閉前備箱'],
+  ['0x0A','打開手套箱'],['0x0B','打開充電蓋板'],['0x0C','關閉充電蓋板'],['0x0D','副駕座椅前移'],
+  ['0x0E','副駕座椅後退'],['0x0F','副駕靠背前移'],['0x10','副駕靠背後移'],['0x11','開關遠光爆閃'],
+  ['0x12','開關前霧燈爆閃'],['0x13','開關前霧燈領航'],['0x14','開關後霧燈爆閃'],['0x15','開關後霧燈領航'],
+  ['0x16','開關脈衝喇叭'],['0x17','喇叭低聲響1下'],['0x18','喇叭低聲響2下'],['0x19','喇叭低聲響3下'],
+];
+
+function buildCustomFuncUI() {
+  const comboOpts = COMBO_OPTIONS.map(([v,l]) => `<option value="${v}">${l}</option>`).join('');
+  const actionOpts = ACTION_OPTIONS.map(([v,l]) => `<option value="${v}">${l}</option>`).join('');
+  const container = document.getElementById('custom-func-list');
+  let html = '';
+  for (let i = 0; i < 16; i++) {
+    html += `
+<div class="cf-item">
+  <div class="cf-header" onclick="toggleCF(${i})">
+    <span>自定義功能設置 ${i + 1}</span>
+    <span class="cf-arrow" id="cf-arrow-${i}">›</span>
+  </div>
+  <div class="cf-body" id="cf-body-${i}" style="display:none">
+    <div class="form-row">
+      <label>組合按鍵</label>
+      <select id="cf-combo-${i}">${comboOpts}</select>
+    </div>
+    <div class="form-row">
+      <label>觸發動作</label>
+      <select id="cf-action-${i}">${actionOpts}</select>
+    </div>
+    <button class="btn-confirm" onclick="sendCustomFunc(${i})">確定</button>
+  </div>
+</div>`;
+  }
+  container.innerHTML = html;
+}
+
+function toggleCF(i) {
+  const body = document.getElementById('cf-body-' + i);
+  const arrow = document.getElementById('cf-arrow-' + i);
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  arrow.classList.toggle('open', open);
+}
+
+function sendCustomFunc(paneIdx) {
+  const combo = parseInt(document.getElementById('cf-combo-' + paneIdx).value, 16);
+  const action = parseInt(document.getElementById('cf-action-' + paneIdx).value, 16);
+  sendCommand(CMD.CUSTOM_FUNC, [0x00, paneIdx, combo, action]);
+  addLog(`→ CUSTOM FUNC pane=${paneIdx} combo=0x${combo.toString(16).padStart(2,'0')} action=0x${action.toString(16).padStart(2,'0')}`);
+  showToast('已送出');
+}
+
+// restore saved password, build custom func UI
 window.onload = () => {
   const saved = localStorage.getItem('klovef_pwd');
   if (saved) document.getElementById('pwd-input').value = saved;
+  buildCustomFuncUI();
 };
 </script>
 </body>

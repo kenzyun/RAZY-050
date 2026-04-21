@@ -1,0 +1,422 @@
+[
+	{
+		"name": "开门闪灯",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，打开任意车门，自动开启双闪灯，关闭所有车门，自动关闭双闪灯。",
+		"valueIndex": 0,
+		"openCode": "0x01",
+		"closeCode": "0x81",
+		"level": 1,
+		"index": 0,
+		"maxIndex": 8
+	},
+	{
+		"name": "倒车闪灯",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，挂入R档，自动开启双闪灯，切出R档，自动关闭双闪灯。",
+		"valueIndex": 0,
+		"openCode": "0x02",
+		"closeCode": "0x82",
+		"level": 1,
+		"index": 1,
+		"maxIndex": 8
+	},
+	{
+		"name": "急刹闪灯",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，2秒内车速从大于40KM/h降到5KM/h以下，自动开启双闪警示约10次。",
+		"valueIndex": 0,
+		"openCode": "0x03",
+		"closeCode": "0x83",
+		"level": 1,
+		"index": 2,
+		"maxIndex": 8
+	},
+	{
+		"name": "转向优先功能",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，手动打开双闪状态下，打转向灯可自动关闭双闪切换到转向灯状态。",
+		"valueIndex": 0,
+		"openCode": "0x04",
+		"closeCode": "0x84",
+		"level": 1,
+		"index": 3,
+		"maxIndex": 8
+	},
+	{
+		"name": "转向优先恢复",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，在执行转向优先功能状态下，关闭转向灯是否切回双闪状态。",
+		"valueIndex": 0,
+		"openCode": "0x05",
+		"closeCode": "0x85",
+		"level": 1,
+		"index": 4,
+		"maxIndex": 8
+	},
+	{
+		"name": "P档设置",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启P档后，车辆进入P档后可自动控制模拟滚轮上下调节。<div style='font-weight: bold;'>免责声明：开启该功能造成的一切后果由使用者承担，开启即表示接受此声明。</div><div>可通过“参数设置”界面设置：</div><div>a.模拟左滚轮（音量调节）先加后减；</div><div>b.模拟左滚轮（音量调节）先减后加；</div><div>c.模拟右滚轮（最高车速调节）先加后减；</div><div>d.模拟右滚轮（最高车速调节）先减后加；</div><div>e.加减时间间隔（0.1~0.6秒）；</div><div>f.滚轮操作时间间隔（1~6秒）。</div>",
+		"valueIndex": 0,
+		"openCode": "0x06",
+		"closeCode": "0x86",
+		"level": 1,
+		"index": 5,
+		"maxIndex": 8
+	},
+	{
+		"name": "远光爆闪",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，按住右滚轮同时拉一次远光，远光自动快速闪烁N次（放开右滚轮自动停止）；可通过“参数设置”界面设置爆闪速度。",
+		"valueIndex": 0,
+		"openCode": "0x07",
+		"closeCode": "0x87",
+		"level": 1,
+		"index": 6,
+		"maxIndex": 8
+	},
+	{
+		"name": "脉冲喇叭",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，按住右滚轮同时按喇叭，喇叭自动快速响N次（放开右滚轮自动停止）；可通过“参数设置”界面设置喇叭时间。",
+		"valueIndex": 0,
+		"openCode": "0x08",
+		"closeCode": "0x88",
+		"level": 1,
+		"index": 7,
+		"maxIndex": 8
+	},
+	{
+		"name": "远光跟随喇叭",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，拉远光时喇叭跟着响。",
+		"valueIndex": 0,
+		"openCode": "0x09",
+		"closeCode": "0x89",
+		"level": 2,
+		"index": 8,
+		"maxIndex": 8
+	},
+	{
+		"name": "喇叭跟随远光",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，按喇叭时远光跟着打开。",
+		"valueIndex": 0,
+		"openCode": "0x0A",
+		"closeCode": "0x8A",
+		"level": 2,
+		"index": 9,
+		"maxIndex": 8
+	},
+	{
+		"name": "前雾灯爆闪",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，按住右滚轮同时左滚轮向上拨，前雾灯自动快速闪烁N次（放开右滚轮自动停止）；可通过“参数设置”界面设置爆闪速度。",
+		"valueIndex": 0,
+		"openCode": "0x0B",
+		"closeCode": "0x8B",
+		"level": 2,
+		"index": 10,
+		"maxIndex": 8
+	},
+	{
+		"name": "前雾灯领航",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，按住左滚轮同时右滚轮向上拨可开启或关闭前雾灯领航（每隔2秒闪3次）。",
+		"valueIndex": 0,
+		"openCode": "0x0C",
+		"closeCode": "0x8C",
+		"level": 2,
+		"index": 11,
+		"maxIndex": 8
+	},
+	{
+		"name": "后雾灯爆闪",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，按住右滚轮同时左滚轮向下拨，后雾灯自动快速闪烁N次（放开右滚轮自动停止）；可通过“参数设置”界面设置爆闪速度。",
+		"valueIndex": 0,
+		"openCode": "0x0D",
+		"closeCode": "0x8D",
+		"level": 2,
+		"index": 12,
+		"maxIndex": 8
+	},
+	{
+		"name": "后雾灯领航",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，按住左滚轮同时右滚轮向下拨可开启或关闭后雾灯领航（每隔2秒闪3次）。",
+		"valueIndex": 0,
+		"openCode": "0x0E",
+		"closeCode": "0x8E",
+		"level": 2,
+		"index": 13,
+		"maxIndex": 8
+	},
+	{
+		"name": "副驾迎宾功能",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，副驾有坐人时，插上副驾安全带，副驾座椅自动调节到座椅记忆位置1的前后位置；解除安全带时，副驾座椅自动调节到座椅记忆位置2的前后位置（使用该功能需先设置副驾座椅记忆位置1和位置2，位置1前后位置比位置2前后位置靠前）。",
+		"valueIndex": 0,
+		"openCode": "0x0F",
+		"closeCode": "0x8F",
+		"level": 2,
+		"index": 14,
+		"maxIndex": 8
+	},
+	{
+		"name": "年检模式",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，模块保持静默不介入车辆控制，所有功能无效。",
+		"valueIndex": 0,
+		"openCode": "0x10",
+		"closeCode": "0x90",
+		"level": 2,
+		"index": 15,
+		"maxIndex": 8
+	},
+	{
+		"name": "P档自动恢复功能",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，通过参数设置P档自动恢复激活条件为“跟随P档”（只要开启P档则P档自动恢复被激活（非焕新版））或“右拨杆下拉到底”（使用右拨杆下拉到底开启P档则P档自动恢复被激活否则P档自动恢复不会被激活（非焕新版））或“右滚轮单击”（焕新版）或“右滚轮双击”（焕新版）。<div>P档自动恢复功能正确操作步骤：</div><div>1、将车辆开到标线清楚的道路，开启P档。</div><div>2、P档状态打转向灯手动变道。</div><div>3、变道完成，转向灯熄灭，方向盘回正并且车速在35Km/h以上，车机提示允许进入P档状态时会自动开启P档（可设置变道完成后延迟N秒后自动恢复P档）。</div><div>自动恢复P档退出条件：踩刹车或者右拨杆上拨（非焕新版）或者挂P档。</div><div>提示：车机设置开启P档为“下拉1次”或“单击”，则打转向灯手动变道需补加速，否则车速会降低；设置为“下拉2次”或“双击”则不会降速。</div>",
+		"valueIndex": 0,
+		"openCode": "0x11",
+		"closeCode": "0x91",
+		"level": 3,
+		"index": 16,
+		"maxIndex": 8
+	},
+	{
+		"name": "滚轮换档功能",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，踩刹车，车速低于8KM/h，右滚轮向上拨可挂入D档，右滚轮向下拨可挂入R档，同时按下左滚轮和右滚轮可挂入P档",
+		"valueIndex": 0,
+		"openCode": "0x12",
+		"closeCode": "0x92",
+		"level": 3,
+		"index": 17,
+		"maxIndex": 8
+	},
+	{
+		"name": "AP手动远光功能",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，在开启AP状态下可手动开关远光灯（老3和老Y向前推动左拨杆，焕新版长按远光灯按键2秒）。",
+		"valueIndex": 0,
+		"openCode": "0x14",
+		"closeCode": "0x94",
+		"level": 3,
+		"index": 19,
+		"maxIndex": 8
+	},
+	{
+		"name": "AP手动雨刮功能",
+		"icon": "question-circle-fill",
+		"data": [
+			{
+				"name": "开启(默认)",
+				"value": 1
+			},
+			{
+				"name": "关闭",
+				"value": 0
+			}
+		],
+		"tips": "开启后，在开启AP状态下关闭自动雨刮，可手动控制。",
+		"valueIndex": 0,
+		"openCode": "0x15",
+		"closeCode": "0x95",
+		"level": 3,
+		"index": 20,
+		"maxIndex": 8
+	}
+]
