@@ -659,6 +659,28 @@ function handleFuncStatus(data) {
 //   Connection
 // =============================================
 
+async function setupGatt(device) {
+  const server = await device.gatt.connect();
+  const service = await server.getPrimaryService(BLE_SERVICE_UUID);
+  const chars = await service.getCharacteristics();
+
+  writeChar = null;
+  let notifyChar = null;
+  for (const c of chars) {
+    if (c.properties.notify || c.properties.indicate) {
+      writeChar = c;
+      notifyChar = c;
+    }
+  }
+  if (!writeChar && chars.length > 0) writeChar = chars[0];
+
+  if (notifyChar) {
+    await notifyChar.startNotifications();
+    notifyChar.addEventListener('characteristicvaluechanged', onDataReceived);
+  }
+  document.getElementById('device-name-label').textContent = device.name || '';
+}
+
 async function connectBLE() {
   if (!navigator.bluetooth) {
     showToast('此瀏覽器不支援 Web Bluetooth，請用 Chrome');
@@ -674,45 +696,45 @@ async function connectBLE() {
       filters: [{ name: 'KLOVEF-System' }],
       optionalServices: [BLE_SERVICE_UUID],
     });
-    addLog(`找到設備: ${bleDevice.name}`);
     bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
-
-    addLog('連接 GATT...');
-    const server = await bleDevice.gatt.connect();
-    addLog('取得 Service...');
-    const service = await server.getPrimaryService(BLE_SERVICE_UUID);
-    addLog('取得 Characteristics...');
-    const chars = await service.getCharacteristics();
-    addLog(`共 ${chars.length} 個特徵`);
-
-    writeChar = null;
-    let notifyChar = null;
-    for (const c of chars) {
-      const p = c.properties;
-      addLog(`  UUID: ${c.uuid.substring(0,8)}... write=${p.write||p.writeWithoutResponse} notify=${p.notify||p.indicate}`);
-      if (p.notify || p.indicate) {
-        writeChar = c;
-        notifyChar = c;
-      }
-    }
-    if (!writeChar && chars.length > 0) writeChar = chars[0];
-
-    if (notifyChar) {
-      await notifyChar.startNotifications();
-      notifyChar.addEventListener('characteristicvaluechanged', onDataReceived);
-      addLog('通知已啟用');
-    }
-
-    document.getElementById('device-name-label').textContent = bleDevice.name || '';
-    addLog('連接成功，請登入');
-    showScreen('login');
-    document.getElementById('pwd-input').focus();
+    await setupGatt(bleDevice);
+    addLog('連接成功');
+    afterConnect();
   } catch (err) {
     addLog('錯誤: ' + err.message);
     showToast('連接失敗: ' + err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = '掃描並連接';
+  }
+}
+
+async function autoConnect(device) {
+  const btn = document.getElementById('btn-connect');
+  btn.disabled = true;
+  btn.textContent = '自動連接中...';
+  try {
+    bleDevice = device;
+    device.addEventListener('gattserverdisconnected', onDisconnected);
+    await setupGatt(device);
+    addLog('自動連接成功');
+    afterConnect();
+  } catch (err) {
+    addLog('自動連接失敗: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = '掃描並連接';
+  }
+}
+
+function afterConnect() {
+  const pwd = localStorage.getItem('klovef_pwd');
+  if (pwd) {
+    addLog('使用已儲存密碼自動登入...');
+    document.getElementById('pwd-input').value = pwd;
+    sendCommand(CMD.LOGIN, stringToBytes(pwd));
+  } else {
+    showScreen('login');
+    document.getElementById('pwd-input').focus();
   }
 }
 
@@ -1059,10 +1081,21 @@ function sendCustomFunc(paneIdx) {
 }
 
 // restore saved password, build custom func UI
-window.onload = () => {
+window.onload = async () => {
   const saved = localStorage.getItem('klovef_pwd');
   if (saved) document.getElementById('pwd-input').value = saved;
   buildCustomFuncUI();
+
+  if (!navigator.bluetooth?.getDevices) return;
+  try {
+    const devices = await navigator.bluetooth.getDevices();
+    const prev = devices.find(d => d.name === 'KLOVEF-System');
+    if (!prev) return;
+    addLog('找到上次設備: ' + prev.name + '，自動連接中...');
+    autoConnect(prev);
+  } catch (e) {
+    addLog('getDevices 失敗: ' + e.message);
+  }
 };
 </script>
 </body>
