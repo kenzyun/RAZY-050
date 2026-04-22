@@ -821,9 +821,17 @@ function processPacket(data) {
 
   if (cmdCode === RSP.LOGIN_RESULT) {
     if (data[5] === 0x01) {
-      showToast('✅ 登入成功');
-      showScreen('control');
-      sendCommand(CMD.GET_DEVICE_INFO, [0x01]);
+      if (pendingHashCmd && HASH_CMDS[pendingHashCmd]) {
+        // headless mode: execute command then close tab
+        showToast('✅ 執行: ' + pendingHashCmd);
+        await HASH_CMDS[pendingHashCmd]();
+        pendingHashCmd = null;
+        setTimeout(() => window.close(), 1500);
+      } else {
+        showToast('✅ 登入成功');
+        showScreen('control');
+        sendCommand(CMD.GET_DEVICE_INFO, [0x01]);
+      }
     } else {
       showToast('❌ 密碼錯誤');
     }
@@ -1081,10 +1089,55 @@ function sendCustomFunc(paneIdx) {
 }
 
 // restore saved password, build custom func UI
+// =============================================
+//   URL hash command map
+// =============================================
+
+const HASH_CMDS = {
+  'lock':          () => manual(0x01),
+  'unlock':        () => manual(0x02),
+  'door-rf':       () => manual(0x03),
+  'door-rr':       () => manual(0x04),
+  'door-lr':       () => manual(0x05),
+  'trunk-open':    () => manual(0x06),
+  'trunk-close':   () => manual(0x07),
+  'frunk-open':    () => manual(0x08),
+  'frunk-close':   () => manual(0x09),
+  'glove':         () => manual(0x0A),
+  'charge-open':   () => manual(0x0B),
+  'charge-close':  () => manual(0x0C),
+  'flash-hi':      () => manual(0x11),
+  'horn-pulse':    () => manual(0x16),
+  'annual-on':     () => sendCommand(CMD.FUNC_CTRL, [0x10]),
+  'annual-off':    () => sendCommand(CMD.FUNC_CTRL, [0x90]),
+};
+
+let pendingHashCmd = null;
+
+async function runHashCmd() {
+  const hash = location.hash.replace('#', '').toLowerCase();
+  if (!hash || !HASH_CMDS[hash]) return false;
+  pendingHashCmd = null;
+  await HASH_CMDS[hash]();
+  showToast('✅ ' + hash);
+  return true;
+}
+
+// =============================================
+//   Init
+// =============================================
+
 window.onload = async () => {
   const saved = localStorage.getItem('klovef_pwd');
   if (saved) document.getElementById('pwd-input').value = saved;
   buildCustomFuncUI();
+
+  // Check for hash command — if present, go into headless auto-run mode
+  const hash = location.hash.replace('#', '').toLowerCase();
+  if (hash && HASH_CMDS[hash]) {
+    pendingHashCmd = hash;
+    addLog('Hash 指令: ' + hash);
+  }
 
   if (!navigator.bluetooth?.getDevices) return;
   try {
