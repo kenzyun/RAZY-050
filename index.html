@@ -530,6 +530,17 @@ let bleDevice = null;
 let writeChar = null;
 let receiveBuffer = [];
 
+const bleChannel = new BroadcastChannel('klovef_ble');
+bleChannel.onmessage = async (e) => {
+  const msg = e.data;
+  if (msg.type === 'ping') {
+    if (writeChar) bleChannel.postMessage({ type: 'pong' });
+  } else if (msg.type === 'cmd' && writeChar && HASH_CMDS[msg.cmd]) {
+    await HASH_CMDS[msg.cmd]();
+    bleChannel.postMessage({ type: 'cmd_done', cmd: msg.cmd });
+  }
+};
+
 // =============================================
 //   Feature list state
 // =============================================
@@ -814,7 +825,7 @@ function onDataReceived(event) {
   }
 }
 
-function processPacket(data) {
+async function processPacket(data) {
   if (data.length < 5) return;
   const cmdCode = data[4];
   addLog(`← RSP 0x${cmdCode.toString(16).toUpperCase().padStart(2,'0')}`);
@@ -1114,6 +1125,23 @@ const HASH_CMDS = {
 
 let pendingHashCmd = null;
 
+function tryDelegateCmd(cmd) {
+  return new Promise(resolve => {
+    const ch = new BroadcastChannel('klovef_ble');
+    const timer = setTimeout(() => { ch.close(); resolve(false); }, 500);
+    ch.onmessage = (e) => {
+      if (e.data.type === 'pong') {
+        ch.postMessage({ type: 'cmd', cmd });
+      } else if (e.data.type === 'cmd_done' && e.data.cmd === cmd) {
+        clearTimeout(timer);
+        ch.close();
+        resolve(true);
+      }
+    };
+    ch.postMessage({ type: 'ping' });
+  });
+}
+
 async function runHashCmd() {
   const hash = location.hash.replace('#', '').toLowerCase();
   if (!hash || !HASH_CMDS[hash]) return false;
@@ -1132,11 +1160,17 @@ window.onload = async () => {
   if (saved) document.getElementById('pwd-input').value = saved;
   buildCustomFuncUI();
 
-  // Check for hash command — if present, go into headless auto-run mode
+  // Check for hash command — delegate to an already-connected tab if available
   const hash = location.hash.replace('#', '').toLowerCase();
   if (hash && HASH_CMDS[hash]) {
-    pendingHashCmd = hash;
     addLog('Hash 指令: ' + hash);
+    const delegated = await tryDelegateCmd(hash);
+    if (delegated) {
+      showToast('✅ 已透過既有連線執行: ' + hash);
+      setTimeout(() => window.close(), 1000);
+      return;
+    }
+    pendingHashCmd = hash;
   }
 
   if (!navigator.bluetooth?.getDevices) return;
